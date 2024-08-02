@@ -469,7 +469,6 @@ class RaftNode:
                 )
                 assert False
             self._log.append(request.log_entry[0])
-            self._commit_index += 1
             _logger.info(
                 c["append_entries"] + "Node ID: %d -- appended: %s" + c["end_color"],
                 self._node.id,
@@ -521,6 +520,7 @@ class RaftNode:
             term=self._term,
             prev_log_index=prev_log_index,
             prev_log_term=prev_log_term,
+            leader_commit=self._commit_index,
             log_entry=None,  # heartbeat has no log entry
         )
         _logger.info(
@@ -615,6 +615,7 @@ class RaftNode:
             prev_log_index=remote_next_index - 1,
             prev_log_term=self._log[remote_next_index - 1].term,
             log_entry=self._log[remote_next_index],
+            leader_commit=self._commit_index,
         )
         assert len(request.log_entry) == 1, "Append entry should have a (single) log entry"
 
@@ -849,10 +850,42 @@ class RaftNode:
 
             self._term_timeout_tasks[self._current_follower] = task
             self._current_follower += 1
+            self._propagateCommitIndex
         else:
             _logger.info(
                 c["raft_logic"] + "Node ID: %d -- There are no other nodes in the cluster" + c["end_color"],
                 self._node.id,
+            )
+
+    async def _propagateCommitIndex(self) -> None:
+        """Propagate the commit index to all nodes in the cluster."""
+
+        assert self._state == RaftState.LEADER, "Only leaders can propagate commit index"
+
+        if self._commit_index >= len(self._log):
+            return
+        _logger.info(
+            c["raft_logic"] + "Node ID: %d -- Check commit index propagation" + c["end_color"],
+            self._node.id,
+        )
+        num_nodes_with_next_log_entry_available = (
+            sum(1 for next_index in self._next_index if next_index > self._commit_index) + 1
+        )  # Count the current node
+
+        _logger.info(
+            c["raft_logic"] + "Node ID: %d -- Number of nodes - %d. Number of commited logs - %d" + c["end_color"],
+            self._node.id,
+            len(self._cluster),
+            num_nodes_with_next_log_entry_available,
+        )
+        if num_nodes_with_next_log_entry_available > len(self._cluster) / 2:
+            self._commit_index += 1
+            assert self._commit_index > 0  # Index 0 is always committed
+
+            _logger.info(
+                c["raft_logic"] + "Node ID: %d -- New commit index: %d" + c["end_color"],
+                self._node.id,
+                self._commit_index,
             )
 
     async def run(self) -> None:

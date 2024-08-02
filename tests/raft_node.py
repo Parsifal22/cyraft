@@ -488,6 +488,7 @@ async def _unittest_raft_node_append_entries_rpc() -> None:
             prev_log_index=index,  # prev_log_index: 0, 1, 2
             prev_log_term=raft_node._log[index].term,
             log_entry=new_entry,
+            leader_commit=index + 1,
         )
         metadata = pycyphal.presentation.ServiceRequestMetadata(
             client_node_id=42,
@@ -536,6 +537,7 @@ async def _unittest_raft_node_append_entries_rpc() -> None:
         prev_log_index=2,  # index of top_2
         prev_log_term=raft_node._log[2].term,
         log_entry=new_entry,
+        leader_commit=3,
     )
     metadata = pycyphal.presentation.ServiceRequestMetadata(
         client_node_id=42,
@@ -590,6 +592,7 @@ async def _unittest_raft_node_append_entries_rpc() -> None:
             prev_log_index=index + 1,  # index: 1, 2
             prev_log_term=raft_node._log[index + 1].term,
             log_entry=new_entry,
+            leader_commit=index + 2,  # index: 2, 3
         )
         metadata = pycyphal.presentation.ServiceRequestMetadata(
             client_node_id=42,
@@ -630,6 +633,7 @@ async def _unittest_raft_node_append_entries_rpc() -> None:
         prev_log_index=2,  # index of top_2
         prev_log_term=raft_node._log[2].term,
         log_entry=new_entry,
+        leader_commit=3,
     )
     metadata = pycyphal.presentation.ServiceRequestMetadata(
         client_node_id=42,
@@ -671,6 +675,7 @@ async def _unittest_raft_node_append_entries_rpc() -> None:
         prev_log_index=3,  # index of top_3
         prev_log_term=raft_node._log[3].term,
         log_entry=new_entry,
+        leader_commit=4,
     )
     metadata = pycyphal.presentation.ServiceRequestMetadata(
         client_node_id=42,
@@ -714,6 +719,7 @@ async def _unittest_raft_node_append_entries_rpc() -> None:
         prev_log_index=3,
         prev_log_term=raft_node._log[3].term,
         log_entry=new_entry,
+        leader_commit=4,
     )
     metadata = pycyphal.presentation.ServiceRequestMetadata(
         client_node_id=42,
@@ -759,6 +765,7 @@ async def _unittest_raft_node_append_entries_rpc() -> None:
         prev_log_index=4,
         prev_log_term=raft_node._log[4].term - 1,  # term mismatch
         log_entry=new_entry,
+        leader_commit=5,
     )
     metadata = pycyphal.presentation.ServiceRequestMetadata(
         client_node_id=42,

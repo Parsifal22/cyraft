@@ -36,7 +36,7 @@ This feature is significant because it enables Cyphal to serve as a communicatio
       - [x] `log_replication.py`
         - [x] `_unittest_raft_log_replication`
         - [x] `_unittest_raft_leader_changes`
-      - [ ] `leader_commit` needs to integrated/tested
+      - [x] `leader_commit` needs to integrated/tested
     - [ ] Test using orchestration so there's 3 nodes running simultanously
       - [ ] use yakut to send AppendEntries requests
     - [ ] [Add name resolution service](https://github.com/OpenCyphal-Garage/cyraft/issues/3)
